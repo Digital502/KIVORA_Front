@@ -618,20 +618,23 @@ export const ProjectView = () => {
 
                       {isLoadingStats && <p>Cargando estadísticas...</p>}
 
-                      {estadisticas && estadisticas.estadisticasUsuarios && estadisticas.estadisticasUsuarios.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                          {estadisticas.estadisticasUsuarios.map((userStat, i) => {
-                            const total = userStat.totalTareas || 0;
-                            const entregadas = userStat.entregadas || 0;
-                            const pendientes = userStat.pendientes || 0;
-                            const porcentaje = total === 0 ? 0 : Math.round((entregadas / total) * 100);
+                    {estadisticas?.estadisticasUsuarios?.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        {estadisticas.estadisticasUsuarios.map((userStat, i) => {
+                          if (!userStat?.usuario) return null;
 
-                            const initials = userStat.usuario.nombre
-                              ? userStat.usuario.nombre
-                                  .split(' ')
-                                  .map(n => n[0].toUpperCase())
-                                  .join('')
-                              : 'U';
+                          const total = userStat.totalTareas || 0;
+                          const entregadas = userStat.entregadas || 0;
+                          const pendientes = userStat.pendientes || 0;
+                          const porcentaje = total === 0 ? 0 : Math.round((entregadas / total) * 100);
+
+                          const initials = userStat.usuario.nombre
+                            ? userStat.usuario.nombre
+                                .split(' ')
+                                .filter(Boolean) 
+                                .map(n => n[0]?.toUpperCase() || '')
+                                .join('')
+                            : 'U';
 
                             return (
                               <div
