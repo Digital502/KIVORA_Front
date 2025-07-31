@@ -15,7 +15,7 @@ apiClient.interceptors.request.use(
                 const parsedUser = JSON.parse(userDetails);
                 if (parsedUser?.token) {
                     config.headers.Authorization = `Bearer ${parsedUser.token}`;
-                    console.log("Token agregado al header:", parsedUser.token); // <-- Log agregado
+                    console.log("Token agregado al header:", parsedUser.token); 
                 }
             } catch (err) {
                 console.warn("Error al leer el token:", err);
@@ -29,7 +29,29 @@ apiClient.interceptors.request.use(
     }
 );
 
-// === TASKS ===
+export const getClusterNotifications = async (clusterId) => {
+  try {
+    const response = await apiClient.get(`/notifications/getClusterNotifications/${clusterId}`);
+    return response.data; 
+  } catch (e) {
+    console.error("Error al obtener notificaciones del cluster:", e);
+    return { error: true, e };
+  }
+};
+
+
+export const calificarEntrega = async ({ taskId, isAccepted, newComment }) => {
+  try {
+    const response = await apiClient.post('/task/calificar', {
+      taskId,
+      isAccepted,
+      newComment
+    });
+    return response.data;
+  } catch (e) {
+    return { error: true, e };
+  }
+};
 
 export const addTask = async (formData) => {
   try {
@@ -45,7 +67,6 @@ export const addTask = async (formData) => {
 };
 
 
-// 2. Reasignar tarea a nuevo usuario
 export const reassignTask = async (taskId, newUserId) => {
     try {
         const response = await apiClient.put('/task/reassignTask', { taskId, newUserId });
@@ -55,7 +76,6 @@ export const reassignTask = async (taskId, newUserId) => {
     }
 };
 
-// 3. Marcar tarea como urgente
 export const markTaskUrgent = async (taskId) => {
     try {
         const response = await apiClient.post('/task/markTaskUrgent', { taskId });
@@ -65,7 +85,6 @@ export const markTaskUrgent = async (taskId) => {
     }
 };
 
-// 4. Etiquetar tarea
 export const setTaskTags = async (taskId, tags) => {
     try {
         const response = await apiClient.post('/task/setTaskTags', { taskId, tags });
@@ -75,7 +94,6 @@ export const setTaskTags = async (taskId, tags) => {
     }
 };
 
-// 5. Agregar archivos adjuntos a tarea
 export const addTaskAttachments = async (taskId, formData) => {
   try {
     const response = await apiClient.put(`/task/addTaskAttachments/${taskId}`, formData, {
@@ -110,7 +128,6 @@ export const deleteTaskAttachments = async (taskId, filenames) => {
     }
 };
 
-// 7. Actualizar tarea
 export const updateTask = async (taskData) => {
     try {
         const response = await apiClient.put('/task/updateTask', taskData);
@@ -119,7 +136,6 @@ export const updateTask = async (taskData) => {
         return { error: true, e };
     }
 };
-// 8. Eliminar tarea
 export const deleteTask = async (taskId) => {
     try {
         const response = await apiClient.delete('/task/deleteTask', {
@@ -146,7 +162,6 @@ export const login = async (data) => {
     return await apiClient.post('/auth/login', data);
 };
 
-// Obtener perfil del usuario autenticado
 export const getMyUser = async () => {
   try {
     const response = await apiClient.get('/user/getMyUser');
@@ -310,9 +325,30 @@ export const buscarGrupoId = async (grupoId) => {
 export const listarProyectosGrupo = async (idGroup) => {
   try {
     const response = await apiClient.get(`/project/getProjects/${idGroup}`);
-    return response.data; // { message, projects }
+    return response.data; 
   } catch (e) {
     console.error("Error al listar proyectos:", e);
+    return { error: true, e };
+  }
+};
+
+export const obtenerEstadisticasProyecto = async (projectId) => {
+  try {
+    const response = await apiClient.get(`/project/projectstats/${projectId}`);
+    return response.data;
+  } catch (e) {
+    return {
+      error: true,
+      message: e.message,
+    };
+  }
+};
+
+export const listarProyectosUsuario = async () => {
+  try {
+    const response = await apiClient.get("/project/listUserProjects");
+    return response.data; 
+  } catch (e) {
     return { error: true, e };
   }
 };
@@ -486,6 +522,104 @@ export const exportPDFBacklog = async (projectId) => {
     };
   }
 }
+
+export const addEvent = async (data) => {
+  try{
+    const response = await apiClient.post(`/event/create`, data)
+    return response.data
+  }catch (e) {
+    return {
+      error: true,
+      message: e.message
+    }
+  }
+}
+
+export const listEvent = async () =>{
+  try{
+    const response = await apiClient.get(`event/list`)
+    return response.data
+  }catch(e){
+    return{
+      error: true,
+      message: e.message
+    }
+  }
+}
+
+export const markAttendance = async (data) => {
+  try{
+    const response = await apiClient.post('/event/attendance', data);
+    return response.data;
+  }catch (e) {
+    return {
+      error: true,
+      message: e.message
+    }
+  }
+}
+
+export const updateEvent = async (id, data) => {
+  try{
+    const response = await apiClient.put(`/event/update/${id}`, data);
+    return response.data;
+  }catch (e) {
+    return {
+      error: true,
+      message: e.message
+    }
+  }
+}
+
+export const deleteEvent = async (id) => {
+  try {
+    const response = await apiClient.delete(`/event/delete/${id}`);
+    return response.data;
+  } catch (e) {
+    return {
+      error: true,
+      message: e.message
+    };
+  }
+}
+
+export const generateCodigo = async (email) => {
+    try {
+        const response = await apiClient.post('/auth/recuperacion', email);
+        return response.data;
+    } catch (e) {
+        return { error: true, e };
+    }
+};
+
+export const updatePassword = async (data) => {
+    try {
+        const response = await apiClient.put('/user/updatePassword', data);
+        return response.data;
+    } catch (e) {
+        return { error: true, e };
+    }
+};
+
+export const getUserTasks = async () => {
+    try {
+        const response = await apiClient.get('/task/listTasksUser');
+        return response.data;
+    } catch (e) {
+        console.error("Error al obtener tareas del usuario:", e);
+        return { error: true, e };
+    }
+};
+
+export const updateTaskState = async (taskId, state) => {
+    try {
+        const response = await apiClient.put(`/task/updateStateTask/${taskId}`, { state });
+        return response.data;
+    } catch (e) {
+        console.error("Error al actualizar estado de la tarea:", e);
+        return { error: true, e };
+    }
+};
 
 export const checkAuth = async () => {
   try {

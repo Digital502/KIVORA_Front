@@ -1,5 +1,5 @@
 import React from 'react';
-import { FolderGit2, Plus, Search, Users, Settings, ArrowRight } from 'lucide-react';
+import { FolderGit2, Plus, Search, Users, Settings, ArrowRight, KanbanSquare, UserCircle, History } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cluster } from '../cluster/Cluster';
@@ -50,13 +50,54 @@ export const ListCluster = () => {
         grupo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const mobileNavItems = [
+    { 
+      label: 'Tu Perfil', 
+      icon: <UserCircle className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/perfil`)
+    },
+    { 
+      label: 'Grupos', 
+      icon: <Users className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/clusters`)
+    },
+    { 
+      label: 'Proyectos', 
+      icon: <KanbanSquare className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/proyectoslist`)
+    },
+    { 
+      label: 'Historial', 
+      icon: <History className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/historial`)
+    },
+  ];
     return (
-        <div className="min-h-screen bg-[#0D0D0D] flex flex-col">
+        <div className="min-h-screen bg-[#0D0D0D] flex flex-col text-white">
             <NavbarDashboard />
             
             <div className="flex flex-1">
-                {/* Sidebar */}
-                <SidebarUser />
+            <div className="hidden lg:block">
+            <SidebarUser />
+            </div>
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-[#036873]/30 z-50">
+                <div className="flex justify-around py-3">
+                {mobileNavItems.map((item, index) => (
+                    <button
+                    key={index}
+                    onClick={item.onClick}
+                    className="flex flex-col items-center p-1 text-xs"
+                    >
+                    <div className="text-[#0B758C]">
+                        {item.icon}
+                    </div>
+                    <span className="text-white text-xs mt-1">
+                        {item.label}
+                    </span>
+                    </button>
+                ))}
+                </div>
+            </div>
                 
                 {/* Contenido principal */}
                 <main className="flex-1 overflow-y-auto">

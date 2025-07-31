@@ -36,6 +36,7 @@
     "recharts": "^2.15.3",
     "socket.io-client": "^4.8.1",
     "tailwindcss": "^4.1.8",
+    "vercel": "^44.6.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {

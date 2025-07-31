@@ -25,7 +25,7 @@ export const useProjectView = (proyecto) => {
           }
         }
       } catch (err) {
-        console.error("Error verificando roles del usuario:", err);
+        toast.error("Error verificando roles del usuario:", err);
       }
     };
 

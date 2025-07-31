@@ -1,5 +1,5 @@
 import {
-  Users, FolderGit2, Calendar, User2, Clock, Shield, Star, Sun, Moon, X, Check, Settings, UserPlus, BarChart2, FileText, LogOut
+  Users, FolderGit2, Calendar, User2, Clock, Shield, Star, Sun, Moon, X, Check, UserPlus,  PlusCircle, GitBranch, Settings
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -31,6 +31,8 @@ export const ClusterHome = () => {
   const [allUsers, setAllUsers] = useState([]);
 
   const {
+    notificacionesCluster,
+    loadingNotificaciones,
     darkMode,
     setDarkMode,
     showProjectModal,
@@ -80,182 +82,203 @@ export const ClusterHome = () => {
     );
   }
 
-const navItems = [
-    { label: 'Salir', icon: <LogOut />, onClick: handleLogout },
+  function handleLogout() {
+    if (localStorage.getItem("user")) {
+      localStorage.removeItem("user");
+    }
+    navigate("/login");
+  }
 
-  { 
-    label: 'Documentación', 
-    icon: <FileText className="w-5 h-5" />, 
-    onClick: () => navigate(`/kivora/grupo/${id}/documentacion`) 
+  const mobileNavItems = [
+    { 
+      label: 'Crear proyecto', 
+      icon: <PlusCircle />, 
+      onClick: () => setShowProjectModal(true),
+      isButton: true
   },
-  { 
-    label: 'Reportes', 
-    icon: <BarChart2 className="w-5 h-5" />, 
-    onClick: () => navigate(`/kivora/grupo/${id}/reportes`) 
+    { 
+    label: 'Proyectos', 
+    icon: <GitBranch className="w-5 h-5" />, 
+    onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' })
   },
   { 
     label: 'Ajustes', 
     icon: <Settings className="w-5 h-5" />, 
-    onClick: () => navigate(`/kivora/grupo/${id}/ajustes`) 
+    onClick: () => navigate(`/kivora/cluster/${id}/settings`)
   }
 ];
-
-  function handleLogout() {
-    localStorage.removeItem('token');
-    navigate('/login');
-  }
 
   return (
     <div className={`${darkMode ? 'bg-[#0D0D0D] text-white' : 'bg-white text-gray-800'} transition-colors duration-300 min-h-screen`}>
       <NavbarDashboard />
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-[#036873]/30 z-50">
+        <div className="flex justify-around py-3">
+          {mobileNavItems.map((item, index) => (
+            <button
+              key={index}
+              onClick={item.onClick}
+              className="flex flex-col items-center p-1 text-xs"
+            >
+              <div className="text-[#0B758C]">
+                {item.icon}
+              </div>
+              <span className="text-white text-xs mt-1">
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    {showProjectModal && (
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className={`rounded-xl shadow-lg p-4 w-full max-w-md max-h-[90vh] overflow-y-auto ${darkMode ? 'bg-[#111] border border-[#036873]/50' : 'bg-white border border-[#036873]/20'}`}
+          style={{ width: '100%' }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold">Crear nuevo proyecto</h3>
+            <button 
+              onClick={() => setShowProjectModal(false)} 
+              className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+              aria-label="Cerrar modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-      {showProjectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={`rounded-xl shadow-lg p-6 w-full max-w-md ${darkMode ? 'bg-[#111] border border-[#036873]/50' : 'bg-white border border-[#036873]/20'}`}
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Crear nuevo proyecto</h3>
-              <button onClick={() => setShowProjectModal(false)} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+          <form onSubmit={handleSubmit(onSubmitProject)}>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Título del proyecto</label>
+                <input
+                  {...register('title')}
+                  type="text"
+                  className={`w-full px-3 py-2 rounded-lg border text-sm ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.title ? 'border-red-500' : ''}`}
+                />
+                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
+              </div>
 
-            <form onSubmit={handleSubmit(onSubmitProject)}>
-              <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Descripción</label>
+                <textarea
+                  {...register('description')}
+                  rows={3}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.description ? 'border-red-500' : ''}`}
+                />
+                {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Título del proyecto</label>
-                  <input
-                    {...register('title')}
-                    type="text"
-                    className={`w-full px-3 py-2 rounded-lg border ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.title ? 'border-red-500' : ''}`}
+                  <label className="block text-sm font-medium mb-1">Fecha de inicio</label>
+                  <Controller
+                    control={control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <DatePicker
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                        selectsStart
+                        startDate={field.value}
+                        endDate={control._formValues.endDate}
+                        className={`w-full px-3 py-2 rounded-lg border text-sm ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.startDate ? 'border-red-500' : ''}`}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Selecciona fecha"
+                      />
+                    )}
                   />
-                  {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
+                  {errors.startDate && <p className="text-red-500 text-xs mt-1">{errors.startDate.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Descripción</label>
-                  <textarea
-                    {...register('description')}
-                    rows={3}
-                    className={`w-full px-3 py-2 rounded-lg border ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.description ? 'border-red-500' : ''}`}
+                  <label className="block text-sm font-medium mb-1">Fecha de finalización</label>
+                  <Controller
+                    control={control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <DatePicker
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                        selectsEnd
+                        startDate={control._formValues.startDate}
+                        endDate={field.value}
+                        minDate={control._formValues.startDate}
+                        className={`w-full px-3 py-2 rounded-lg border text-sm ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.endDate ? 'border-red-500' : ''}`}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Selecciona fecha"
+                      />
+                    )}
                   />
-                  {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Fecha de inicio</label>
-                    <Controller
-                      control={control}
-                      name="startDate"
-                      render={({ field }) => (
-                        <DatePicker
-                          selected={field.value}
-                          onChange={(date) => field.onChange(date)}
-                          selectsStart
-                          startDate={field.value}
-                          endDate={control._formValues.endDate}
-                          className={`w-full px-3 py-2 rounded-lg border ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.startDate ? 'border-red-500' : ''}`}
-                          dateFormat="dd/MM/yyyy"
-                          placeholderText="Selecciona fecha"
-                        />
-                      )}
-                    />
-                    {errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate.message}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Fecha de finalización</label>
-                    <Controller
-                      control={control}
-                      name="endDate"
-                      render={({ field }) => (
-                        <DatePicker
-                          selected={field.value}
-                          onChange={(date) => field.onChange(date)}
-                          selectsEnd
-                          startDate={control._formValues.startDate}
-                          endDate={field.value}
-                          minDate={control._formValues.startDate}
-                          className={`w-full px-3 py-2 rounded-lg border ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.endDate ? 'border-red-500' : ''}`}
-                          dateFormat="dd/MM/yyyy"
-                          placeholderText="Selecciona fecha"
-                        />
-                      )}
-                    />
-                    {errors.endDate && <p className="text-red-500 text-sm mt-1">{errors.endDate.message}</p>}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Tipo de proyecto</label>
-                  <select
-                    {...register('projectType')}
-                    className={`w-full px-3 py-2 rounded-lg border ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.projectType ? 'border-red-500' : ''}`}
-                  >
-                    <option value="">Selecciona un tipo</option>
-                    <option value="Academic">Académico</option>
-                    <option value="Informatic">Informático</option>
-                  </select>
-                  {errors.projectType && <p className="text-red-500 text-sm mt-1">{errors.projectType.message}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Product Owner</label>
-                  <select
-                    {...register('productOwner')}
-                    className={`w-full px-3 py-2 rounded-lg border ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.productOwner ? 'border-red-500' : ''}`}
-                  >
-                    <option value="">Selecciona un integrante</option>
-                    {grupo?.integrantes?.map((integrante, index) => (
-                      <option
-                        key={integrante._id}
-                        value={integrante.usuario.uid} 
-                      >
-                        {integrante.usuario.username || integrante.usuario.email}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.productOwner && <p className="text-red-500 text-sm mt-1">{errors.productOwner.message}</p>}
-                </div>
-
-                {error && <p className="text-red-500 text-sm">{error}</p>}
-                {success && <p className="text-green-500 text-sm">{success}</p>}
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowProjectModal(false)}
-                    className={`px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className={`px-4 py-2 rounded-lg bg-[#0B758C] hover:bg-[#0a6a7d] text-white flex items-center gap-2`}
-                  >
-                    {loading ? 'Creando...' : 'Crear proyecto'}
-                    {!loading && <Check className="w-4 h-4" />}
-                  </button>
+                  {errors.endDate && <p className="text-red-500 text-xs mt-1">{errors.endDate.message}</p>}
                 </div>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
 
+              <div>
+                <label className="block text-sm font-medium mb-1">Tipo de proyecto</label>
+                <select
+                  {...register('projectType')}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.projectType ? 'border-red-500' : ''}`}
+                >
+                  <option value="">Selecciona un tipo</option>
+                  <option value="Academic">Académico</option>
+                  <option value="Informatic">Informático</option>
+                </select>
+                {errors.projectType && <p className="text-red-500 text-xs mt-1">{errors.projectType.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Product Owner</label>
+                <select
+                  {...register('productOwner')}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm ${darkMode ? 'bg-[#222] border-gray-700' : 'bg-white border-gray-300'} ${errors.productOwner ? 'border-red-500' : ''}`}
+                >
+                  <option value="">Selecciona un integrante</option>
+                  {grupo?.integrantes?.map((integrante, index) => (
+                    <option
+                      key={integrante._id}
+                      value={integrante.usuario.uid} 
+                    >
+                      {integrante.usuario.username || integrante.usuario.email}
+                    </option>
+                  ))}
+                </select>
+                {errors.productOwner && <p className="text-red-500 text-xs mt-1">{errors.productOwner.message}</p>}
+              </div>
+
+              {error && <p className="text-red-500 text-xs">{error}</p>}
+              {success && <p className="text-green-500 text-xs">{success}</p>}
+
+              <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowProjectModal(false)}
+                  className={`px-4 py-2 rounded-lg text-sm ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg bg-[#0B758C] hover:bg-[#0a6a7d] text-white text-sm flex items-center justify-center gap-2`}
+                >
+                  {loading ? 'Creando...' : 'Crear proyecto'}
+                  {!loading && <Check className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </form>
+        </motion.div>
+      </div>
+    )}
       {showInviteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className={`rounded-xl shadow-lg p-6 w-full max-w-md ${darkMode ? 'bg-[#111] border border-[#036873]/50' : 'bg-white border border-[#036873]/20'}`}
           >
-
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">Agregar miembro</h3>
               <button onClick={() => {
@@ -310,7 +333,6 @@ const navItems = [
           </motion.div>
         </div>
       )}
-
       {/* Botón de modo oscuro */}
       <div className="fixed top-4 right-4 z-10">
         <button
@@ -325,26 +347,6 @@ const navItems = [
         {/* Sidebar para desktop */}
         <div className="hidden lg:block">
           <SidebarCluster setShowProjectModal={setShowProjectModal} setShowInviteModal={setShowInviteModal} id={id} />
-        </div>
-
-        {/* Menú móvil */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-gray-800 z-10">
-          <div className="flex justify-around py-2">
-            {navItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={item.onClick}
-                className="flex flex-col items-center p-2 text-xs"
-              >
-                <div className="text-[#0B758C] w-5 h-5">
-                  {item.icon}
-                </div>
-                <span className="text-white text-xs mt-1">
-                  {item.label.split(' ')[0]} {/* Muestra solo la primera palabra para ahorrar espacio */}
-                </span>
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Contenido principal */}
@@ -439,32 +441,45 @@ const navItems = [
             )}
           </section>
 
-          <section className="mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
-              <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B758C]" />
-              Actividad reciente
-            </h2>
-            <div className={`p-4 sm:p-6 rounded-xl border ${darkMode ? 'bg-[#111] border-[#036873]/30' : 'bg-white border-[#036873]/20'}`}>
-              <div className="flex items-center gap-3 sm:gap-4 pb-3 sm:pb-4 mb-3 sm:mb-4 border-b border-[#036873]/10">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#0B758C]/10 flex items-center justify-center">
-                  <User2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#0B758C]" />
-                </div>
-                <div>
-                  <p className="text-sm sm:text-base font-medium">Dabp7 creó el proyecto "Sistema de Gestión Académica"</p>
-                  <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Hace 2 días</p>
-                </div>
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
+            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B758C]" />
+            Actividad reciente
+          </h2>
+          <div className={`p-4 sm:p-6 rounded-xl border ${darkMode ? 'bg-[#111] border-[#036873]/30' : 'bg-white border-[#036873]/20'}`}>
+            {loadingNotificaciones ? (
+              <div className="flex justify-center py-4">
+                <div className="w-6 h-6 border-2 border-[#0B758C] border-t-transparent rounded-full animate-spin"></div>
               </div>
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#0B758C]/10 flex items-center justify-center">
-                  <User2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#0B758C]" />
+            ) : notificacionesCluster.length === 0 ? (
+              <p className={`text-center py-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                No hay actividad reciente para mostrar
+              </p>
+            ) : (
+              notificacionesCluster.map((notificacion, index) => (
+                <div 
+                  key={notificacion._id} 
+                  className={`flex items-center gap-3 sm:gap-4 ${index !== notificacionesCluster.length - 1 ? 'pb-3 sm:pb-4 mb-3 sm:mb-4 border-b border-[#036873]/10' : ''}`}
+                >
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#0B758C]/10 flex items-center justify-center">
+                    <User2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#0B758C]" />
+                  </div>
+                  <div>
+                    <p className="text-sm sm:text-base font-medium">
+                      {notificacion.title || 'Nueva actividad'}
+                    </p>
+                    <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {notificacion.message}
+                    </p>
+                    <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      {formatDate(notificacion.dateCreation)}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm sm:text-base font-medium">asd se unió al grupo</p>
-                  <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Hace 1 semana</p>
-                </div>
-              </div>
-            </div>
-          </section>
+              ))
+            )}
+          </div>
+        </section>
 
           <div className="lg:hidden fixed bottom-20 right-4 z-10">
           <button

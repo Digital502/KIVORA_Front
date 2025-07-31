@@ -36,7 +36,7 @@ export const SidebarCluster = ({ setShowProjectModal, setShowInviteModal, id }) 
                         <FileText className="w-5 h-5" />
                         <span>Documentación</span>
                     </button>
-                    <button className="flex items-center gap-3 w-full px-4 py-2 rounded-lg transition-colors hover:bg-[#036873]/10">
+                    <button onClick={() => navigate(`/kivora/cluster/${id}/reports`)} className="flex items-center gap-3 w-full px-4 py-2 rounded-lg transition-colors hover:bg-[#036873]/10">
                         <ClipboardList className="w-5 h-5" />
                         <span>Reportes</span>
                     </button>

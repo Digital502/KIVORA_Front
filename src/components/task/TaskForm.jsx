@@ -26,7 +26,6 @@ export const TaskForm = ({ isOpen, onClose, sprint, projectId, teamMembers, onTa
   useEffect(() => {
     if (!isOpen) return;
     
-    // Resetear el formulario cuando se abre
     setFormData({
       title: '',
       description: '',
@@ -48,7 +47,6 @@ export const TaskForm = ({ isOpen, onClose, sprint, projectId, teamMembers, onTa
       ...prev,
       [name]: value
     }));
-    // Limpiar el error cuando el usuario escribe
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -69,7 +67,6 @@ export const TaskForm = ({ isOpen, onClose, sprint, projectId, teamMembers, onTa
       assignedTo: ''
     };
 
-    // Validación del título
     if (!formData.title.trim()) {
       newErrors.title = 'El título es obligatorio';
       valid = false;
@@ -78,7 +75,6 @@ export const TaskForm = ({ isOpen, onClose, sprint, projectId, teamMembers, onTa
       valid = false;
     }
 
-    // Validación de la descripción
   if (!formData.description.trim()) {
       newErrors.description = 'La description es obligatorio';
       valid = false;
@@ -87,7 +83,6 @@ export const TaskForm = ({ isOpen, onClose, sprint, projectId, teamMembers, onTa
       valid = false;
     }
 
-    // Validación de asignación
     if (!formData.assignedTo) {
       newErrors.assignedTo = 'Debe asignar la tarea a un usuario';
       valid = false;
@@ -127,8 +122,8 @@ export const TaskForm = ({ isOpen, onClose, sprint, projectId, teamMembers, onTa
       if (result.status === 'success') {
         toast.success('Tarea creada exitosamente!');
         onClose();
-        if (onTaskCreated) { // Añade esta condición
-          onTaskCreated(); // Esto actualizará la lista
+        if (onTaskCreated) { 
+          onTaskCreated(); 
         }
       }
     } catch (error) {

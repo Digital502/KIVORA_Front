@@ -1,18 +1,32 @@
-import React from 'react';
+import React from "react";
 
-import { PlusCircle, FolderGit2, BookOpenCheck, CheckCircle, ListTodo, Rocket} from 'lucide-react';
-import { motion } from 'framer-motion';
-import { FooterHome } from '../../components/footer/FooterHome';
-import { NavbarDashboard } from '../../components/navs/NavbarDashboard';
-import { Cluster } from '../../components/cluster/Cluster'; 
-import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { useCluster } from '../../shared/hooks/useCluster'
-import { SidebarUser } from '../../components/navs/SidebarUser';
+import {
+  PlusCircle,
+  FolderGit2,
+  BookOpenCheck,
+  CheckCircle,
+  ListTodo,
+  Rocket,
+  Users,
+  KanbanSquare,
+  UserCircle,
+  History,
+  CheckSquare,
+  MessageCircle
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { FooterHome } from "../../components/footer/FooterHome";
+import { NavbarDashboard } from "../../components/navs/NavbarDashboard";
+import { Cluster } from "../../components/cluster/Cluster";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useCluster } from "../../shared/hooks/useCluster";
+import { SidebarUser } from "../../components/navs/SidebarUser";
+import { QuickTasksOverview } from "../../components/task/QuickTasksOverview";
 
 export const DashboardHome = () => {
   const [grupos, setGrupos] = useState([]);
-  const [nuevoGrupo, setNuevoGrupo] = useState('');
+  const [nuevoGrupo, setNuevoGrupo] = useState("");
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
   const [showClusterModal, setShowClusterModal] = useState(false);
@@ -29,7 +43,7 @@ export const DashboardHome = () => {
         console.error("Error al obtener grupos:", error);
       }
     };
-    
+
     fetchGrupos();
   }, []);
 
@@ -46,40 +60,99 @@ export const DashboardHome = () => {
 
   const paneles = [
     {
-      titulo: 'Guía rápida sobre SCRUM',
-      descripcion: 'Comprende los roles, eventos y artefactos de SCRUM para trabajar mejor en equipo.',
+      titulo: "Guía rápida sobre SCRUM",
+      descripcion:
+        "Comprende los roles, eventos y artefactos de SCRUM para trabajar mejor en equipo.",
       icono: <BookOpenCheck className="w-8 h-8 text-[#0B758C]" />,
-      onClick: () => navigate('/kivora/guideScrum'),
+      onClick: () => navigate("/kivora/guideScrum"),
     },
     {
-      titulo: 'Tus Tareas',
-      descripcion: 'Revisa y organiza las tareas asignadas a ti en tus proyectos actuales.',
+      titulo: "Tus Tareas",
+      descripcion:
+        "Revisa y organiza las tareas asignadas a ti en tus proyectos actuales.",
       icono: <CheckCircle className="w-8 h-8 text-[#0B758C]" />,
+      onClick: () => navigate("/kivora/mis-tareas"),
     },
     {
-      titulo: 'Tareas Pendientes',
-      descripcion: 'Visualiza qué tareas están en espera de ser finalizadas y prioriza tus esfuerzos.',
+      titulo: "Tareas Pendientes",
+      descripcion:
+        "Visualiza qué tareas están en espera de ser finalizadas y prioriza tus esfuerzos.",
       icono: <ListTodo className="w-8 h-8 text-[#0B758C]" />,
-    }
+      onClick: () => navigate("/kivora/mis-tareas"),
+    },
+  ];
+
+  const mobileNavItems = [
+    {
+      label: "Tu Perfil",
+      icon: <UserCircle className="w-5 h-5" />,
+      onClick: () => navigate(`/kivora/perfil`),
+    },
+    {
+      label: "Mis Tareas",
+      icon: <CheckSquare className="w-5 h-5" />,
+      onClick: () => navigate(`/kivora/mis-tareas`),
+    },
+    {
+      label: "Grupos",
+      icon: <Users className="w-5 h-5" />,
+      onClick: () => navigate(`/kivora/clusters`),
+    },
+    {
+      label: "Proyectos",
+      icon: <KanbanSquare className="w-5 h-5" />,
+      onClick: () => navigate(`/kivora/proyectoslist`),
+    },
+    {
+      label: "Chat",
+      icon: <MessageCircle className="w-5 h-5" />,
+      onClick: () => navigate("/kivora/chatPage"),
+    },
+
+    {
+      label: "Historial",
+      icon: <History className="w-5 h-5" />,
+      onClick: () => navigate(`/kivora/historial`),
+    },
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0D0D0D] text-white">
       <NavbarDashboard />
-      
+
       <div className="flex flex-col lg:flex-row flex-1">
-        {/* Sidebar para desktop */}
-       <SidebarUser />
-        {/* Contenido principal */}
+        <div className="hidden lg:block">
+          <SidebarUser />
+        </div>
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-[#036873]/30 z-50">
+          <div className="flex justify-around py-3">
+            {mobileNavItems.map((item, index) => (
+              <button
+                key={index}
+                onClick={item.onClick}
+                className="flex flex-col items-center p-1 text-xs"
+              >
+                <div className="text-[#0B758C]">{item.icon}</div>
+                <span className="text-white text-xs mt-1">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
         <main className="flex-1 py-6 px-4 sm:py-8 sm:px-6 lg:py-10 lg:px-10 pb-20 lg:pb-10">
           <p className="text-sm sm:text-base text-gray-400 mb-4 capitalize">
-            {new Date().toLocaleDateString('es-ES', {
-              weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            {new Date().toLocaleDateString("es-ES", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
             })}
           </p>
 
           <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-10">
-            Hola, <span className="text-[#0B758C]">{user ? `${user.username}` : "Usuario"}</span>
+            Hola,{" "}
+            <span className="text-[#0B758C]">
+              {user ? `${user.username}` : "Usuario"}
+            </span>
           </h1>
 
           {/* Paneles rápidos */}
@@ -95,9 +168,13 @@ export const DashboardHome = () => {
               >
                 <div className="flex items-center gap-3 mb-3">
                   {panel.icono}
-                  <h2 className="text-lg sm:text-xl font-semibold">{panel.titulo}</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    {panel.titulo}
+                  </h2>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-400">{panel.descripcion}</p>
+                <p className="text-xs sm:text-sm text-gray-400">
+                  {panel.descripcion}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -111,19 +188,33 @@ export const DashboardHome = () => {
           >
             <div className="flex items-center gap-3 mb-3 sm:mb-4">
               <Rocket className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B758C]" />
-              <h2 className="text-xl sm:text-2xl font-bold">¿Cómo funciona <span className="text-[#0B758C]">Kivora</span>?</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">
+                ¿Cómo funciona <span className="text-[#0B758C]">Kivora</span>?
+              </h2>
             </div>
             <p className="text-gray-400 text-sm sm:text-base mb-3 sm:mb-4">
-              Kivora es una plataforma diseñada para facilitar la colaboración en proyectos utilizando metodologías ágiles como SCRUM.
-              Desde tu panel puedes crear grupos, asignar tareas, monitorear el progreso de tus proyectos y mantener comunicación eficiente entre los miembros del equipo.
+              Kivora es una plataforma diseñada para facilitar la colaboración
+              en proyectos utilizando metodologías ágiles como SCRUM. Desde tu
+              panel puedes crear grupos, asignar tareas, monitorear el progreso
+              de tus proyectos y mantener comunicación eficiente entre los
+              miembros del equipo.
             </p>
             <ul className="list-disc ml-4 sm:ml-6 space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-400">
               <li>Organiza equipos y proyectos fácilmente.</li>
               <li>Asigna tareas y define prioridades por sprint.</li>
-              <li>Consulta tu guía rápida de SCRUM para aplicar buenas prácticas.</li>
-              <li>Visualiza notificaciones, historial de actividades y tu perfil.</li>
+              <li>
+                Consulta tu guía rápida de SCRUM para aplicar buenas prácticas.
+              </li>
+              <li>
+                Visualiza notificaciones, historial de actividades y tu perfil.
+              </li>
             </ul>
           </motion.section>
+
+          {/* Quick Tasks Overview */}
+          <div className="mb-10 sm:mb-16">
+            <QuickTasksOverview />
+          </div>
 
           {/* Crear grupo */}
           <section>
@@ -158,10 +249,13 @@ export const DashboardHome = () => {
                   >
                     <div className="flex items-center gap-3 mb-2 sm:mb-3">
                       <FolderGit2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B758C]" />
-                      <h2 className="text-lg sm:text-xl font-semibold">{grupo.nombre}</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold">
+                        {grupo.nombre}
+                      </h2>
                     </div>
                     <p className="text-xs sm:text-sm text-gray-400">
-                      Grupo creado recientemente. Puedes agregar miembros o tareas.
+                      Grupo creado recientemente. Puedes agregar miembros o
+                      tareas.
                     </p>
                   </motion.div>
                 ))
@@ -171,7 +265,7 @@ export const DashboardHome = () => {
         </main>
       </div>
 
-      <Cluster 
+      <Cluster
         isOpen={showClusterModal}
         onClose={() => setShowClusterModal(false)}
         onGroupCreated={handleGroupCreated}

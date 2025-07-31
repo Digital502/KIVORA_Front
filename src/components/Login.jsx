@@ -380,7 +380,7 @@ export const Login = () => {
               <p className="text-sm text-[#639FA6]">
                 ¿Olvidaste tu contraseña?{" "}
                 <Link
-                  to="/forgot-password"
+                  to="/kivora/forgot-password"
                   className="text-[#0B758C] font-medium hover:underline transition-colors"
                 >
                   Recupérala aquí

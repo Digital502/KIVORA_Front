@@ -1,19 +1,22 @@
 import React from 'react'
-import {Users, KanbanSquare, Settings, UserCircle, MessageCircle, History, LogOut} from 'lucide-react';
+import {Users, KanbanSquare, Settings, UserCircle, History, LogOut, MessageCircle, CheckSquare} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const SidebarUser = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
-    };
+    if (localStorage.getItem("user")) {
+      localStorage.removeItem("user");
+    }
+    navigate("/login");
+  };
 
     const navItems = [
         { label: 'Tu Perfil', icon: <UserCircle className="w-5 h-5" />, onClick: () => navigate('/kivora/perfil') },
+        { label: 'Mis Tareas', icon: <CheckSquare className="w-5 h-5" />, onClick: () => navigate('/kivora/mis-tareas') },
         { label: 'Grupos', icon: <Users className="w-5 h-5" />, onClick: () => navigate('/kivora/clusters') },
-        { label: 'Proyectos', icon: <KanbanSquare className="w-5 h-5" />, onClick: () => navigate('/kivora/proyectos') },
+        { label: 'Proyectos', icon: <KanbanSquare className="w-5 h-5" />, onClick: () => navigate('/kivora/proyectoslist') },
         { label: 'Historial de Proyectos', icon: <History className="w-5 h-5" />, onClick: () => navigate('/kivora/historial') },
         { label: 'Chat', icon: <MessageCircle className="w-5 h-5" />, onClick: () => navigate('/kivora/chatPage') },
         { label: 'Cerrar Sesión', icon: <LogOut className="w-5 h-5" />, onClick: handleLogout }

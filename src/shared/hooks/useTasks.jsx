@@ -8,7 +8,8 @@ import {
   addTaskAttachments,
   deleteTaskAttachments,
   updateTask,
-  deleteTask
+  deleteTask,
+  calificarEntrega
 } from '../../services/api';
 
 export const useProjectTasks = (projectId) => {
@@ -56,7 +57,6 @@ const handleAddTask = async (formData) => {
     await fetchTasks(projectId);
     return { status: 'success', data: response };
   } catch (err) {
-    console.error('Error en handleAddTask:', err);
     toast.error(err.message);
     return { status: 'error', error: err.message };
   } finally {
@@ -79,8 +79,14 @@ const handleQuickAction = async (action, taskId, data) => {
         response = await setTaskTags(taskId, data.tags);
         break;
       case 'attach':
-        // data YA ES el FormData preparado en TaskEditModal
         response = await addTaskAttachments(taskId, data);
+        break;
+      case 'calificar':
+        response = await calificarEntrega({
+          taskId,
+          isAccepted: data.isAccepted,
+          newComment: data.newComment
+        });
         break;
       default:
         throw new Error('Acción no válida');
@@ -169,7 +175,7 @@ const handleQuickAction = async (action, taskId, data) => {
     const handleDeleteTaskAttachments = async (taskId, filenamesObj) => {
       setLoading(true);
       try {
-        const response = await deleteTaskAttachments(taskId, filenamesObj); // Debe recibir el objeto {filenames: "nombre"}
+        const response = await deleteTaskAttachments(taskId, filenamesObj); 
         if (response.error) throw new Error(response.e?.message || 'Error al eliminar archivos');
         
         toast.success('Archivos eliminados!');
@@ -217,6 +223,22 @@ const handleQuickAction = async (action, taskId, data) => {
     }
   };
 
+    const handleCalificarEntrega = async ({ taskId, isAccepted, newComment }) => {
+    setLoading(true);
+    try {
+      const response = await calificarEntrega({ taskId, isAccepted, newComment });
+      if (response.error) throw new Error(response.e?.message || 'Error al calificar entrega');
+      
+      toast.success(isAccepted ? 'Entrega aceptada!' : 'Entrega rechazada!');
+      await fetchTasks(projectId);
+      return { status: 'success', data: response };
+    } catch (err) {
+      toast.error(`Error al calificar entrega: ${err.message}`);
+      return { status: 'error', error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     tasks,
@@ -234,6 +256,7 @@ const handleQuickAction = async (action, taskId, data) => {
     handleDeleteTaskAttachments,
     handleUpdateTask,
     handleDeleteTask,
+    handleCalificarEntrega,
     refreshTasks: fetchTasks
   };
 };

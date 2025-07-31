@@ -4,7 +4,8 @@ import {
   agregarIntegrante,
   addProject,
   buscarGrupoId,
-  listarProyectosGrupo
+  listarProyectosGrupo,
+  getClusterNotifications 
 } from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -20,31 +21,41 @@ export const useClusterHome = (id) => {
   const [grupo, setGrupo] = useState(null);
   const [proyectos, setProyectos] = useState([]);
   const [loadingGroup, setLoadingGroup] = useState(true);
+  const [notificacionesCluster, setNotificacionesCluster] = useState([]);
+  const [loadingNotificaciones, setLoadingNotificaciones] = useState(false);
 
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
         setLoadingGroup(true);
+        setLoadingNotificaciones(true);
 
-        const groupResponse = await buscarGrupoId(id);
-        const proyectosResponse = await listarProyectosGrupo(id);
-
-        console.log("Respuesta del grupo:", groupResponse);
+        const [groupResponse, proyectosResponse, notificacionesResponse] = await Promise.all([
+          buscarGrupoId(id),
+          listarProyectosGrupo(id),
+          getClusterNotifications(id)
+        ]);
 
         if (groupResponse.error || !groupResponse.grupo) {
           console.error("Error: grupo no encontrado o inválido");
           setGrupo(null);
         } else {
-          console.log("Integrantes del grupo:", groupResponse.grupo.integrantes);
           setGrupo(groupResponse.grupo);
         }
 
-        console.log("Proyectos del grupo:", proyectosResponse);
         setProyectos(proyectosResponse.projects || []);
+
+        if (!notificacionesResponse.error) {
+          setNotificacionesCluster(notificacionesResponse.notifications || []);
+        } else {
+          console.error("Error al obtener notificaciones:", notificacionesResponse.e);
+        }
+
       } catch (err) {
         console.error("Error al cargar datos del grupo:", err);
       } finally {
         setLoadingGroup(false);
+        setLoadingNotificaciones(false);
       }
     };
 
@@ -95,7 +106,6 @@ export const useClusterHome = (id) => {
   };
 
   const onSubmitProject = async (data) => {
-    console.log('📦 Datos del formulario:', data);
     setLoading(true);
     setError('');
     setSuccess('');
@@ -155,8 +165,10 @@ export const useClusterHome = (id) => {
     grupo,
     proyectos,
     loadingGroup,
+    notificacionesCluster,
+    loadingNotificaciones,
     formatDate,
     handleInviteMember,
-    onSubmitProject
+    onSubmitProject   
   };
 };

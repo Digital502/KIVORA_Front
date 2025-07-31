@@ -72,14 +72,6 @@ export const SprintForm = ({ isOpen, onClose, onSprintCreated, proyecto, sprintT
     setFormData(prev => ({ ...prev, [name]: date }));
   };
 
-  const handleSelectBacklog = (backlog) => {
-    setSelectedBacklog(backlog.uid);
-    setIsBacklogDropdownOpen(false);
-  };
-
-  const handleRemoveBacklog = () => {
-    setSelectedBacklog(null);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -182,7 +174,6 @@ export const SprintForm = ({ isOpen, onClose, onSprintCreated, proyecto, sprintT
                     className="w-full px-4 py-2 rounded-md bg-[#0D0D0D] border border-[#036873]/30 text-white focus:ring-2 focus:ring-[#0B758C] focus:outline-none"
                     placeholder="Ej: Sprint 1 - Inicio del proyecto"
                     required
-                    disabled={isEditMode} 
                   />
                 </div>
 
@@ -199,91 +190,8 @@ export const SprintForm = ({ isOpen, onClose, onSprintCreated, proyecto, sprintT
                     rows={3}
                     className="w-full px-4 py-2 rounded-md bg-[#0D0D0D] border border-[#036873]/30 text-white focus:ring-2 focus:ring-[#0B758C] focus:outline-none"
                     placeholder="Ej: Implementar la autenticación y estructura base"
-                    disabled={isEditMode}
                   />
                 </div>
-
-                {/* Selector de Backlog */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Backlog Pendiente
-                  </label>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsBacklogDropdownOpen(!isBacklogDropdownOpen)}
-                      className="w-full px-4 py-2 rounded-md bg-[#0D0D0D] border border-[#036873]/30 text-white flex justify-between items-center"
-                      disabled={isEditMode}
-                    >
-                      <div className="flex items-center gap-2">
-                        <List className="w-5 h-5 text-[#036873]" />
-                        <span className="truncate">
-                          {selectedBacklog 
-                            ? pendingBacklogs.find(b => b.uid === selectedBacklog)?.title
-                            : 'Seleccionar backlog'}
-                        </span>
-                      </div>
-                    </button>
-                    
-                    <AnimatePresence>
-                      {isBacklogDropdownOpen && !isEditMode && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute z-10 w-full mt-1 bg-[#0D0D0D] border border-[#036873]/30 rounded-md shadow-lg overflow-hidden"
-                        >
-                          <div className="max-h-60 overflow-y-auto">
-                            {loadingList ? (
-                              <div className="p-3 text-center text-gray-400">Cargando backlogs...</div>
-                            ) : pendingBacklogs.length === 0 ? (
-                              <div className="p-3 text-center text-gray-400">No hay backlogs pendientes</div>
-                            ) : (
-                              pendingBacklogs.map(backlog => (
-                                <div 
-                                  key={backlog.uid}
-                                  className="px-4 py-2 hover:bg-[#036873]/20 cursor-pointer flex items-center justify-between"
-                                  onClick={() => handleSelectBacklog(backlog)}
-                                >
-                                  <span className="truncate">{backlog.title}</span>
-                                  {getPriorityBadge(backlog.priority)}
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* Backlog seleccionado */}
-                {selectedBacklog && (
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Backlog Seleccionado
-                    </label>
-                    <div className="px-3 py-2 bg-[#0D0D0D] rounded-md border border-[#036873]/30 flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate">
-                          {pendingBacklogs.find(b => b.uid === selectedBacklog)?.title}
-                        </span>
-                        {getPriorityBadge(pendingBacklogs.find(b => b.uid === selectedBacklog)?.priority)}
-                      </div>
-                      {!isEditMode && (
-                        <button
-                          type="button"
-                          onClick={handleRemoveBacklog}
-                          className="text-red-500 hover:text-red-400"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label htmlFor="dateStart" className="block text-sm font-medium text-gray-300 mb-1">

@@ -11,6 +11,7 @@ import {
   buscarGrupoId
 } from "../../services";
 import toast from "react-hot-toast";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export const useCluster = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,20 +28,52 @@ export const useCluster = () => {
     };
   };
 
+  const toastError = (title, message) => {
+    toast.error(
+      <div className="flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 mt-0.5 text-red-500" />
+        <div>
+          <p className="font-medium">{title}</p>
+          {message && <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>}
+        </div>
+      </div>,
+      {
+        className: 'border border-red-200 bg-red-50 dark:bg-gray-800 dark:border-red-800/50',
+        position: 'top-right'
+      }
+    );
+  };
+
+  const toastSuccess = (title, message) => {
+    toast.success(
+      <div className="flex items-start gap-3">
+        <CheckCircle className="w-5 h-5 mt-0.5 text-green-500" />
+        <div>
+          <p className="font-medium">{title}</p>
+          {message && <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>}
+        </div>
+      </div>,
+      {
+        className: 'border border-green-200 bg-green-50 dark:bg-gray-800 dark:border-green-800/50',
+        position: 'top-right'
+      }
+    );
+  };
+
   const obtenerTodosUsuarios = async () => {
     try {
       setIsLoading(true);
       const response = await getUser();
 
       if (response.error) {
-        toast.error("Error al obtener los usuarios");
+        toastError("Error al obtener los usuarios");
         return [];
       }
 
       setUsuarios(response.services || []);
       return response.services || [];
     } catch (error) {
-      toast.error("Error al obtener los usuarios");
+      toastError("Error al obtener los usuarios");
       return [];
     } finally {
       setIsLoading(false);
@@ -53,15 +86,15 @@ export const useCluster = () => {
       const response = await crearGrupo(formData);
 
       if (!response) {
-        toast.error("No se pudo crear el grupo");
+        toastError("No se pudo crear el grupo");
         return null;
       }
 
       const grupoCreado = construirGrupo(response.grupo);
-      toast.success("Grupo creado exitosamente");
+      toastSuccess("Grupo creado exitosamente");
       return grupoCreado;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error al crear el grupo");
+      toastError("Error al crear el grupo", error.response?.data?.message || null);
       return null;
     } finally {
       setIsLoading(false);
@@ -74,15 +107,15 @@ export const useCluster = () => {
       const response = await agregarIntegrante({ grupoId, integrante });
 
       if (!response.success) {
-        toast.error("No se pudo agregar el integrante");
+        toastError("No se pudo agregar el integrante");
         return null;
       }
 
       const grupoActualizado = construirGrupo(response.grupo);
-      toast.success("Integrante agregado exitosamente");
+      toastSuccess("Integrante agregado exitosamente");
       return grupoActualizado;
     } catch (error) {
-      toast.error("Error al agregar integrante");
+      toastError("Error al agregar integrante");
       return null;
     } finally {
       setIsLoading(false);
@@ -95,15 +128,15 @@ export const useCluster = () => {
       const response = await eliminarIntegrante({ grupoId, integrante });
 
       if (response.error || !response.grupo) {
-        toast.error("No se pudo eliminar el integrante");
+        toastError("No se pudo eliminar el integrante");
         return null;
       }
 
       const grupoActualizado = construirGrupo(response.grupo);
-      toast.success("Integrante eliminado exitosamente");
+      toastSuccess("Integrante eliminado exitosamente");
       return grupoActualizado;
     } catch (error) {
-      toast.error("Error al eliminar integrante");
+      toastError("Error al eliminar integrante");
       return null;
     } finally {
       setIsLoading(false);
@@ -116,15 +149,15 @@ export const useCluster = () => {
       const response = await editarDescripcion(grupoId, descripcion);
 
       if (response.error || !response.grupo) {
-        toast.error("No se pudo editar la descripción");
+        toastError("No se pudo editar la descripción");
         return null;
       }
 
       const grupoActualizado = construirGrupo(response.grupo);
-      toast.success("Descripción editada exitosamente");
+      toastSuccess("Descripción editada exitosamente");
       return grupoActualizado;
     } catch (error) {
-      toast.error("Error al editar la descripción");
+      toastError("Error al editar la descripción");
       return null;
     } finally {
       setIsLoading(false);
@@ -140,7 +173,7 @@ export const useCluster = () => {
       const response = await listarGrupos(email);
 
       if (!response.message) {
-        toast.error("No se pudo obtener la lista de grupos");
+        toastError("No se pudo obtener la lista de grupos");
         return [];
       }
 
@@ -148,7 +181,7 @@ export const useCluster = () => {
       setGrupos(gruposFormateados);
       return gruposFormateados;
     } catch (error) {
-      toast.error("Error al obtener los grupos");
+      toastError("Error al obtener los grupos");
       return [];
     } finally {
       setIsLoading(false);
@@ -161,7 +194,7 @@ export const useCluster = () => {
       const response = await buscarGrupoId(grupoId);
 
       if (response.error || !response.grupo) {
-        toast.error("No se pudo obtener el grupo");
+        toastError("No se pudo obtener el grupo");
         return null;
       }
 
@@ -169,7 +202,7 @@ export const useCluster = () => {
       setGrupoActual(grupoFormateado);
       return grupoFormateado;
     } catch (error) {
-      toast.error("Error al obtener el grupo");
+      toastError("Error al obtener el grupo");
       return null;
     } finally {
       setIsLoading(false);

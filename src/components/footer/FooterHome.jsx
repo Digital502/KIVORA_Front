@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Code, Home, KanbanSquare, HelpCircle, LogIn, BookOpen, Film, FileText, Mail, Twitter, Github, Linkedin, Facebook } from 'lucide-react'
+import { Code, Home, KanbanSquare, HelpCircle, LogIn, BookOpen, Film, FileText, Mail, Twitter, Github, Linkedin, Facebook, Instagram } from 'lucide-react'
 
 export const FooterHome = () => {
   return (
@@ -50,28 +50,28 @@ export const FooterHome = () => {
             <h3 className="text-lg font-semibold text-[#F2F2F2] mb-4">Recursos</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
+                <Link to="/documentation" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
                   Documentación
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
+                <Link to="/tutorials" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
                   <Film className="w-4 h-4" />
                   Tutoriales
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
+                <Link to="/blog" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Blog
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
+                <Link to="/api" className="text-[#639FA6] hover:text-[#0B758C] transition-colors flex items-center gap-2">
                   <Code className="w-4 h-4" />
                   API
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -86,14 +86,14 @@ export const FooterHome = () => {
             </ul>
             
             <div className="mt-6 flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-[#036873]/20 flex items-center justify-center hover:bg-[#036873]/40 transition-colors">
+              <a href="https://www.instagram.com/digitalfactdev/?utm_source=ig_web_button_share_sheet" className="w-10 h-10 rounded-full bg-[#036873]/20 flex items-center justify-center hover:bg-[#036873]/40 transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-[#036873]/20 flex items-center justify-center hover:bg-[#036873]/40 transition-colors">
+              <a href="https://github.com/GroupDigitalFact" className="w-10 h-10 rounded-full bg-[#036873]/20 flex items-center justify-center hover:bg-[#036873]/40 transition-colors">
                 <Github className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-[#036873]/20 flex items-center justify-center hover:bg-[#036873]/40 transition-colors">
-                <Linkedin className="w-5 h-5" />
+              <a href="https://www.instagram.com/digitalfactdev/?utm_source=ig_web_button_share_sheet" className="w-10 h-10 rounded-full bg-[#036873]/20 flex items-center justify-center hover:bg-[#036873]/40 transition-colors">
+                <Instagram className="w-5 h-5" />
               </a>
               <a href="#" className="w-10 h-10 rounded-full bg-[#036873]/20 flex items-center justify-center hover:bg-[#036873]/40 transition-colors">
                 <Facebook className="w-5 h-5" />

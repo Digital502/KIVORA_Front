@@ -8,15 +8,47 @@ import {
   updateProfilePicture,
 } from "../../services";
 import toast from "react-hot-toast";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 export const usePerfilUsuario = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [perfil, setPerfil] = useState(null);
   const navigate = useNavigate();
 
+  const toastSuccess = (title, message = "") => {
+    toast.success(
+      <div className="flex items-start gap-3">
+        <CheckCircle className="w-5 h-5 mt-0.5 text-green-500" />
+        <div>
+          <p className="font-medium">{title}</p>
+          {message && <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>}
+        </div>
+      </div>,
+      {
+        className: "border border-green-200 bg-green-50 dark:bg-gray-800 dark:border-green-800/50",
+        position: "top-right",
+      }
+    );
+  };
+
+  const toastError = (title, message = "") => {
+    toast.error(
+      <div className="flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 mt-0.5 text-red-500" />
+        <div>
+          <p className="font-medium">{title}</p>
+          {message && <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>}
+        </div>
+      </div>,
+      {
+        className: "border border-red-200 bg-red-50 dark:bg-gray-800 dark:border-red-800/50",
+        position: "top-right",
+      }
+    );
+  };
+
   const construirPerfil = (data) => {
     if (!data) return null;
-
     return {
       ...data,
       imageUrl: data.imageUrl
@@ -25,104 +57,100 @@ export const usePerfilUsuario = () => {
     };
   };
 
-  // Obtener datos del usuario autenticado
   const fetchMyUser = async () => {
     try {
       setIsLoading(true);
       const response = await getMyUser();
 
       if (!response.success || !response.services?.[0]) {
-        toast.error("No se pudo obtener la información del usuario");
+        toastError("No se pudo obtener el usuario");
         return;
       }
 
       const perfilConstruido = construirPerfil(response.services[0]);
       setPerfil(perfilConstruido);
     } catch (error) {
-      toast.error("Error al obtener el perfil del usuario");
+      toastError("Error al obtener el perfil");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Actualizar perfil (nombre, apellido, username, teléfono)
   const actualizarPerfil = async (datosActualizados) => {
     try {
       setIsLoading(true);
       const response = await updateUser(datosActualizados);
 
       if (!response.success) {
-        toast.error("No se pudo actualizar el perfil");
+        toastError("No se pudo actualizar el perfil");
         return;
       }
 
       const perfilActualizado = construirPerfil(response.user);
       setPerfil(perfilActualizado);
-      toast.success(response.message || "Perfil actualizado correctamente");
+      toastSuccess("Perfil actualizado", response.message || "Cambios guardados correctamente");
     } catch (error) {
-      toast.error("Error al actualizar el perfil");
+      toastError("Error al actualizar el perfil");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Cambiar contraseña
   const cambiarContrasena = async ({ oldPassword, newPassword }) => {
     try {
       setIsLoading(true);
       const response = await changePassword({ oldPassword, newPassword });
 
       if (response.message?.toLowerCase().includes("updated")) {
-        toast.success("Contraseña actualizada exitosamente");
+        toastSuccess("Contraseña actualizada");
       } else {
-        toast.error("Error al cambiar la contraseña");
+        toastError("Error al cambiar la contraseña");
       }
     } catch (error) {
-      toast.error("Error al cambiar la contraseña");
+      toastError("Error al cambiar la contraseña");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Eliminar cuenta del usuario
   const eliminarCuenta = async () => {
     try {
       setIsLoading(true);
       const response = await deleteUser();
 
       if (response.success) {
-        toast.success("Cuenta eliminada con éxito");
+        toastSuccess("Cuenta eliminada", "Esperamos verte pronto");
         localStorage.removeItem("user");
         navigate("/login", { replace: true });
       } else {
-        toast.error("No se pudo eliminar la cuenta");
+        toastError("No se pudo eliminar la cuenta");
       }
     } catch (error) {
-      toast.error("Error al eliminar la cuenta");
+      toastError("Error al eliminar la cuenta");
     } finally {
       setIsLoading(false);
     }
   };
 
   const actualizarFotoPerfil = async (file) => {
-  try {
-    setIsLoading(true);
-    const response = await updateProfilePicture(file);
+    try {
+      setIsLoading(true);
+      const response = await updateProfilePicture(file);
 
-    if (!response.success) {
-      toast.error("No se pudo actualizar la imagen");
-      return;
+      if (!response.success) {
+        toastError("No se pudo actualizar la imagen");
+        return;
+      }
+
+      const perfilActualizado = construirPerfil(response.user);
+      setPerfil(perfilActualizado);
+      toastSuccess("Imagen actualizada", response.message || "Se ha guardado tu nueva foto");
+    } catch (error) {
+      toastError("Error al actualizar la imagen");
+    } finally {
+      setIsLoading(false);
     }
-
-    const perfilActualizado = construirPerfil(response.user);
-    setPerfil(perfilActualizado);
-    toast.success(response.message || "Imagen actualizada correctamente");
-  } catch (error) {
-    toast.error("Error al actualizar la imagen");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return {
     perfil,

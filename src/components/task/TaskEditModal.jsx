@@ -1,6 +1,6 @@
 import { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Edit, User, AlertTriangle, Tag, Paperclip } from 'lucide-react';
+import { X, Edit, User, AlertTriangle, Tag, Paperclip, Check } from 'lucide-react';
 
 export const TaskEditModal = ({
   isOpen,
@@ -16,17 +16,19 @@ export const TaskEditModal = ({
     description: task?.description || '',
     sprint: task?.sprint?._id || task?.sprint || task?.sprintId || null,
     assignedTo: task?.assignedTo?._id || task?.assignedTo || (teamMembers[0]?._id || ''),
-    tags: task?.tags?.join(', ') || '',
+    tags: task?.tags ? task.tags.join(', ') : '', 
     isUrgent: task?.isUrgent || false,
-    attachments: null
+    attachments: null,
+    isAccepted: true,
+    newComment: ''
   });
 
-  const [errors, setErrors] = useState({
-    title: '',
-    description: '',
-    tags: '',
-    attachments: ''
-  });
+    const [errors, setErrors] = useState({
+      title: '',
+      description: '',
+      tags: '',
+      attachments: ''
+    });
 
   const validateForm = () => {
     let valid = true;
@@ -70,46 +72,65 @@ export const TaskEditModal = ({
       }
     }
 
+    if (mode === 'calificar') {
+    if (formData.newComment.length > 300) {
+      newErrors.newComment = 'La comentario no puede exceder los 300 caracteres';
+      valid = false;
+    }
+}
+
     setErrors(newErrors);
     return valid;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!validateForm()) return;
 
-    try {
-      if (mode === 'full') {
-        const dataToSubmit = {
-          id: task._id,
-          title: formData.title,
-          description: formData.description,
-          sprint: formData.sprint, 
-          assignedTo: formData.assignedTo,
-          tags: formData.tags.split(',').map(tag => tag.trim()),
-          isUrgent: formData.isUrgent
-        };
-        
-        await onSubmit(dataToSubmit);
-      } else {
-        if (mode === 'attach') {
+  try {
+    if (mode === 'full') {
+      const dataToSubmit = {
+        id: task._id,
+        title: formData.title,
+        description: formData.description,
+        assignedTo: formData.assignedTo,
+        tags: formData.tags.split(',').map(tag => tag.trim()), 
+        isUrgent: formData.isUrgent
+      };
+      
+      await onSubmit(dataToSubmit);
+    } else if (mode === 'tags') {
+    await onQuickAction(mode, task._id, { 
+      tags: formData.tags.split(',').map(tag => tag.trim()) 
+    });
+    } else {
+      switch(mode) {
+        case 'attach':
           const formDataToSend = new FormData(); 
           formDataToSend.append('attachments', formData.attachments); 
           await onQuickAction(mode, task._id, formDataToSend);
-        } else if (mode === 'reassign') {
+          break;
+        case 'reassign':
           await onQuickAction(mode, task._id, { newUserId: formData.assignedTo });
-        } else {
+          break;
+        case 'calificar':
+          await onQuickAction(mode, task._id, {
+            isAccepted: formData.isAccepted,
+            newComment: formData.newComment
+          });
+          break;
+        default:
           await onQuickAction(mode, task._id, { tags: formData.tags.split(',').map(tag => tag.trim()) });
-        }
       }
-      
-      onClose();
-    } catch (error) {
-      console.error('Error al actualizar la tarea:', error);
-      alert(`Ocurrió un error al actualizar la tarea: ${error.message}`);
     }
-  };
+    
+    onClose();
+  } catch (error) {
+    console.error('Error al actualizar la tarea:', error);
+    alert(`Ocurrió un error al actualizar la tarea: ${error.message}`);
+  }
+};
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -207,6 +228,54 @@ export const TaskEditModal = ({
                 </div>
               )}
 
+              {mode === 'calificar' && (
+                <>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Estado de la entrega
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="isAccepted"
+                          checked={formData.isAccepted}
+                          onChange={() => setFormData({...formData, isAccepted: true})}
+                          className="text-[#0B758C]"
+                        />
+                        <span className="text-gray-300">Aprobar</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="isAccepted"
+                          checked={!formData.isAccepted}
+                          onChange={() => setFormData({...formData, isAccepted: false})}
+                          className="text-red-500"
+                        />
+                        <span className="text-gray-300">Rechazar</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Comentario (opcional)
+                    </label>
+                    <textarea
+                      value={formData.newComment}
+                      onChange={(e) => setFormData({...formData, newComment: e.target.value})}
+                      className="w-full bg-[#333] border border-[#444] rounded-md px-3 py-2 text-white"
+                      rows="3"
+                      placeholder="Proporciona retroalimentación sobre la entrega..."
+                    />
+                    {errors.newComment && (
+                      <p className="mt-1 text-sm text-red-500">{errors.newComment}</p>
+                    )}
+                  </div>
+                </>
+              )}
+
               {mode === 'urgent' && (
                 <div className="mb-4 flex items-center">
                   <input
@@ -256,11 +325,13 @@ export const TaskEditModal = ({
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-[#0B758C] hover:bg-[#0a6a7d] text-white transition-colors flex items-center gap-2"
                 >
+                  {mode === 'calificar' && <Check className="w-4 h-4" />}
                   {mode === 'full' && <Edit className="w-4 h-4" />}
                   {mode === 'reassign' && <User className="w-4 h-4" />}
                   {mode === 'urgent' && <AlertTriangle className="w-4 h-4" />}
                   {mode === 'tags' && <Tag className="w-4 h-4" />}
-                  {mode === 'full' ? 'Actualizar' : 'Confirmar'}
+                  {mode === 'full' ? '' : ''}
+                  {mode === 'calificar' ? 'Calificar' : mode === 'full' ? 'Actualizar' : 'Confirmar'}
                 </button>
               </div>
             </form>

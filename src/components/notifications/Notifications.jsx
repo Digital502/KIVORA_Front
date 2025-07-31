@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Archive, Bell, Eye, Trash2 } from 'lucide-react';
+import { Archive, Bell, Eye, Trash2, Users, KanbanSquare, UserCircle, History } from 'lucide-react';
 import { useEffect } from 'react';
 import { FooterHome } from '../../components/footer/FooterHome';
 import { NavbarDashboard } from '../../components/navs/NavbarDashboard';
 import { SidebarUser } from '../../components/navs/SidebarUser';
 import { useNotifications } from '../../shared/hooks/useNotifications';
+import { useNavigate } from 'react-router-dom';
 
 export const NotificationsList = () => {
     const {
@@ -19,14 +20,57 @@ export const NotificationsList = () => {
         fetchNotifications();
     }, []);
 
+  const mobileNavItems = [
+    { 
+      label: 'Tu Perfil', 
+      icon: <UserCircle className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/perfil`)
+    },
+    { 
+      label: 'Grupos', 
+      icon: <Users className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/clusters`)
+    },
+    { 
+      label: 'Proyectos', 
+      icon: <KanbanSquare className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/proyectoslist`)
+    },
+    { 
+      label: 'Historial', 
+      icon: <History className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/historial`)
+    },
+  ];
+
+  const navigate = useNavigate();
+
     return (
-        <div className="min-h-screen bg-[#0D0D0D] flex flex-col">
+        <div className="min-h-screen bg-[#0D0D0D] flex flex-col text-white">
             <NavbarDashboard />
 
             <div className="flex flex-1">
+                <div className="hidden lg:block">
                 <SidebarUser />
-
-                {/* Contenido principal */}
+                </div>
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-[#036873]/30 z-50">
+                    <div className="flex justify-around py-3">
+                    {mobileNavItems.map((item, index) => (
+                        <button
+                        key={index}
+                        onClick={item.onClick}
+                        className="flex flex-col items-center p-1 text-xs"
+                        >
+                        <div className="text-[#0B758C]">
+                            {item.icon}
+                        </div>
+                        <span className="text-white text-xs mt-1">
+                            {item.label}
+                        </span>
+                        </button>
+                    ))}
+                    </div>
+                </div>
                 <main className="flex-1 overflow-y-auto">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div className="mb-8">

@@ -3,7 +3,7 @@ import { usePerfilUsuario } from "../../shared/hooks/usePerfilUsuario";
 import {LoadingSpinner} from "../loadingSpinner/LoadingSpinner"
 import { validatePerfil, validateCambioPassword, validateImagenPerfil } from "../../shared/validators/perfilValidators";
 import { 
-  Users, KanbanSquare, Settings, MessageCircle, Sun, Moon,
+  Users, KanbanSquare, Settings, Sun, Moon,
   UserCircle, History, LogOut, Edit, Trash2, 
   Lock, X, Upload, Eye, EyeOff 
 } from 'lucide-react';
@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { FooterHome } from "../footer/FooterHome";
 import { NavbarDashboard } from "../navs/NavbarDashboard";
 import { useNavigate } from 'react-router-dom';
+import { SidebarUser } from "../navs/SidebarUser";
 
 export const PerfilUsuario = () => {
   const {
@@ -44,19 +45,11 @@ export const PerfilUsuario = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const navigate = useNavigate();
 
-  const navItems = [
-    { label: 'Tu Perfil', icon: <UserCircle />, onClick: () => navigate('/kivora/perfil') },
-    { label: 'Chat', icon: <MessageCircle />, onClick: () => navigate('/kivora/chatPage') },
-    { label: 'Grupos', icon: <Users />, onClick: () => navigate('/kivora/grupos') },
-    { label: 'Proyectos', icon: <KanbanSquare />, onClick: () => navigate('/kivora/proyectos') },
-    { label: 'Ajustes', icon: <Settings />, onClick: () => navigate('/kivora/ajustes') },
-    { label: 'Historial', icon: <History />, onClick: () => navigate('/kivora/historial') },
-    { label: 'Salir', icon: <LogOut />, onClick: handleLogout }
-  ];
-
   function handleLogout() {
-    localStorage.removeItem('token');
-    navigate('/login');
+    if (localStorage.getItem("user")) {
+      localStorage.removeItem("user");
+    }
+    navigate("/login");
   }
 
   const handleImagenChange = (e) => {
@@ -143,46 +136,54 @@ export const PerfilUsuario = () => {
     setErrorImagen("");
   };
 
+    const mobileNavItems = [
+    { 
+      label: 'Tu Perfil', 
+      icon: <UserCircle className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/perfil`)
+    },
+    { 
+      label: 'Grupos', 
+      icon: <Users className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/clusters`)
+    },
+    { 
+      label: 'Proyectos', 
+      icon: <KanbanSquare className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/proyectoslist`)
+    },
+    { 
+      label: 'Historial', 
+      icon: <History className="w-5 h-5" />, 
+      onClick: () => navigate(`/kivora/historial`)
+    },
+  ];
   return (
     <div className="min-h-screen flex flex-col bg-[#0D0D0D] text-white">
       <NavbarDashboard />
       
       <div className="flex flex-col lg:flex-row flex-1">
-        {/* Sidebar para desktop */}
-        <aside className="lg:w-64 px-4 py-6 lg:px-6 lg:py-8 border-r border-[#036873]/20 bg-[#0D0D0D] hidden lg:flex lg:flex-col justify-between">
-          <nav className="space-y-2 lg:space-y-4">
-            {navItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={item.onClick} 
-                className="flex items-center gap-3 w-full px-3 py-2 lg:px-4 lg:py-2 rounded-lg transition-colors hover:bg-[#036873]/10 text-white"
-              >
-                {React.cloneElement(item.icon, { className: "w-5 h-5" })}
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Menú móvil */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-gray-800 z-10">
-          <div className="flex justify-around py-2">
-            {navItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={item.onClick}
-                className="flex flex-col items-center p-2 text-xs"
-              >
-                <div className="text-[#0B758C] w-5 h-5">
-                  {item.icon}
-                </div>
-                <span className="text-white text-xs mt-1">
-                  {item.label.split(' ')[0]} {/* Muestra solo la primera palabra para ahorrar espacio */}
-                </span>
-              </button>
-            ))}
-          </div>
+        <div className="hidden lg:block">
+        <SidebarUser />
+      </div>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-[#036873]/30 z-50">
+        <div className="flex justify-around py-3">
+          {mobileNavItems.map((item, index) => (
+            <button
+              key={index}
+              onClick={item.onClick}
+              className="flex flex-col items-center p-1 text-xs"
+            >
+              <div className="text-[#0B758C]">
+                {item.icon}
+              </div>
+              <span className="text-white text-xs mt-1">
+                {item.label}
+              </span>
+            </button>
+          ))}
         </div>
+      </div>
 
         {/* Contenido principal */}
         <main className="flex-1 py-6 px-4 sm:py-8 sm:px-6 lg:py-10 lg:px-10 pb-20 lg:pb-10">

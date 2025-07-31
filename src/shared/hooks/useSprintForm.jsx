@@ -79,8 +79,15 @@ const obtenerSprints = async (projectId) => {
       const tareas = s.task || [];
       return {
         ...s,
+        uid: s._id || s.uid, 
         totalTareas: tareas.length,
-        tareasUrgentes: tareas.filter(t => t.isUrgent).length
+        tareasUrgentes: tareas.filter(t => t.isUrgent).length,
+        task: tareas.map(t => ({
+          ...t,
+          sprint: s._id || s.uid, 
+          attachments: t.attachments || [],
+          attachmentUrls: t.attachmentUrls || []
+        }))
       };
     });
 
